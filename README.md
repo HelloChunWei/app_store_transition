@@ -1,6 +1,5 @@
 # app_store_transition
 
-A new Flutter project.
 
 ## Getting Started
 
