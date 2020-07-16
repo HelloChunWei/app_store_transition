@@ -16,6 +16,7 @@ class _ProductItemState extends State<ProductItem> {
       onTap: () {
         Navigator.of(context).push(
           PageRouteBuilder(
+            /// [opaque] set fasle, then the detail page can see the home page screen.
             opaque: false,
             transitionDuration: Duration(milliseconds: 700),
             fullscreenDialog: true,
@@ -30,6 +31,7 @@ class _ProductItemState extends State<ProductItem> {
         flightShuttleBuilder:
             (flightContext, animation, direction, fromcontext, toContext) {
           final Hero toHero = toContext.widget;
+          // Change push and pop animation.
           return direction == HeroFlightDirection.push
               ? ScaleTransition(
                   scale: animation.drive(

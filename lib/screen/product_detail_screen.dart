@@ -38,7 +38,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   @override
   void initState() {
     _pop = true;
-    print('init');
     _heightController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 350));
     _widthController =
@@ -109,9 +108,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                             duration: Duration(milliseconds: 300),
                             curve: Curves.linear);
                       }
-                      // 100 - scale = 0.75
-                      // max 100
-                      // 1 - scale = 1
                     } else if (_pointerDistance >= 260) {
                       if (_pop) {
                         _pop = false;
@@ -129,7 +125,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     }
                   },
                   onVerticalDragEnd: (detail) {
-                    print('end $_pointerDistance');
                     if (_pointerDistance >= 550) {
                       if (_pop) {
                         _closeController.fling(velocity: 1).then((_) {
@@ -144,16 +139,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     } else {
                       _closeController.fling(velocity: -1);
                     }
-                  },
-                  onTap: () {
-                    // _closeCOntroller.forward().then((_) {
-                    // setState(() {
-                    // _heightController.fling(velocity: -1);
-                    // });
-                    // Timer(Duration(milliseconds: 100), () {
-                    // Navigator.of(context).pop();
-                    // });
-                    // });
                   },
                   child: Hero(
                     tag: _product.id,
