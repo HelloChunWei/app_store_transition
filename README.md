@@ -83,6 +83,8 @@ Use ``ScaleTransition`` and  ``onVerticalDragUpdate`` to control pop animation.
   .
   .
 */
+double _initPoint = 0;
+double _pointerDistance = 0;
 GestureDetector(
   onVerticalDragDown: (detail) {
     _initPoint = detail.globalPosition.dy;
