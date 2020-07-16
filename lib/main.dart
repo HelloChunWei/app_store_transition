@@ -2,6 +2,7 @@ import 'package:app_store_transition/providers/products.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import './screen/home_screen.dart';
+import './screen/open_container.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: HomeScreen(),
+        // home: OpenContainerTransformDemo(),
       ),
     );
   }
