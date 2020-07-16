@@ -32,6 +32,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       'gravida rutrum quisque. Suspendisse in est ante in nibh mauris cursus '
       'mattis molestie. Adipiscing elit duis tristique sollicitudin nibh sit '
       'amet commodo nulla. Pretium viverra suspendisse potenti nullam ac tortor '
+      'vitae.\n'
+      'egestas pretium. Quis varius quam quisque id. Blandit aliquam etiam erat '
+      'velit scelerisque. In nisl nisi scelerisque eu. Semper risus in hendrerit '
+      'gravida rutrum quisque. Suspendisse in est ante in nibh mauris cursus '
+      'mattis molestie. Adipiscing elit duis tristique sollicitudin nibh sit '
+      'amet commodo nulla. Pretium viverra suspendisse potenti nullam ac tortor '
       'vitae.\n';
   Animation _closeAnimation;
   bool _pop;
