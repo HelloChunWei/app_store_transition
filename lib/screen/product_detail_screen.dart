@@ -67,6 +67,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     _closeController.dispose();
     _heightController.dispose();
     _widthController.dispose();
+
     super.dispose();
   }
 
@@ -74,79 +75,59 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white.withOpacity(0.85),
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (scrollNotification) {
-          if (scrollNotification is ScrollUpdateNotification) {
-            // current scroll position.
-            // print(scrollNotification.metrics.pixels);
-          }
-          return true;
+      body: AnimatedBuilder(
+        animation: _closeAnimation,
+        builder: (context, _child) {
+          return Transform.scale(
+            scale: _closeAnimation.value,
+            child: _child,
+          );
         },
-        child: SingleChildScrollView(
-          child: AnimatedBuilder(
-            animation: _closeAnimation,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: _closeAnimation.value,
-                child: child,
-              );
-            },
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (scrollNotification) {
+            if (scrollNotification is ScrollUpdateNotification) {
+              // current scroll position.
+              double top = scrollNotification.metrics.pixels;
+              if (top < 0 && top >= -100) {
+                double _scaleValue =
+                    double.parse((-(top.toInt() / 100)).toStringAsFixed(2));
+                _closeController.animateTo(_scaleValue,
+                    duration: Duration(milliseconds: 0),
+                    curve: Curves.easeOutExpo);
+              } else if (top < 0 && top <= -100) {
+                if (top <= -100 && top >= -110) {
+                  _closeController.animateTo(1,
+                      duration: Duration(milliseconds: 0),
+                      curve: Curves.easeOutExpo);
+                }
+                if (top <= -110) {
+                  if (_pop) {
+                    _pop = false;
+                    _closeController.fling(velocity: 1).then((_) {
+                      setState(() {
+                        _heightController.reverse();
+                      });
+                      Timer(Duration(milliseconds: 100), () {
+                        Navigator.of(context).pop();
+                      });
+                    });
+                  }
+                }
+              } else {
+                _closeController.fling(velocity: -1);
+              }
+            }
+            return true;
+          },
+          child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                GestureDetector(
-                  onVerticalDragDown: (detail) {
-                    _initPoint = detail.globalPosition.dy;
-                  },
-                  onVerticalDragUpdate: (detail) {
-                    _pointerDistance = detail.globalPosition.dy - _initPoint;
-                    if (_pointerDistance >= 0 && _pointerDistance < 200) {
-                      // scroll up
-                      if (_pointerDistance < 100) {
-                        double _scaleValue = double.parse(
-                            (_pointerDistance / 100).toStringAsFixed(2));
-                        _closeController.animateTo(_scaleValue,
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.linear);
-                      }
-                    } else if (_pointerDistance >= 260) {
-                      if (_pop) {
-                        _pop = false;
-                        _closeController.fling(velocity: 1).then((_) {
-                          setState(() {
-                            _heightController.reverse();
-                          });
-                          Timer(Duration(milliseconds: 100), () {
-                            Navigator.of(context).pop();
-                          });
-                        });
-                      }
-                    } else {
-                      // scroll down
-                    }
-                  },
-                  onVerticalDragEnd: (detail) {
-                    if (_pointerDistance >= 550) {
-                      if (_pop) {
-                        _closeController.fling(velocity: 1).then((_) {
-                          setState(() {
-                            _heightController.reverse();
-                          });
-                          Timer(Duration(milliseconds: 100), () {
-                            Navigator.of(context).pop();
-                          });
-                        });
-                      }
-                    } else {
-                      _closeController.fling(velocity: -1);
-                    }
-                  },
-                  child: Hero(
-                    tag: _product.id,
-                    child: Image.asset(
-                      _product.image,
-                      fit: BoxFit.cover,
-                      height: 300,
-                    ),
+                Hero(
+                  tag: _product.id,
+                  child: Image.asset(
+                    _product.image,
+                    fit: BoxFit.cover,
+                    height: 300,
                   ),
                 ),
                 SizeTransition(
