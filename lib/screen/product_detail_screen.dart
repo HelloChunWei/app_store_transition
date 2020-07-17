@@ -12,12 +12,6 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen>
     with TickerProviderStateMixin {
-  AnimationController _heightController;
-  AnimationController _widthController;
-  AnimationController _closeController;
-  double _initPoint;
-  double _pointerDistance;
-  Product _product;
   String _text =
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod '
       'tempor incididunt ut labore et dolore magna aliqua. Vulputate dignissim '
@@ -33,32 +27,54 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       'mattis molestie. Adipiscing elit duis tristique sollicitudin nibh sit '
       'amet commodo nulla. Pretium viverra suspendisse potenti nullam ac tortor '
       'vitae.\n'
-      'egestas pretium. Quis varius quam quisque id. Blandit aliquam etiam erat '
       'velit scelerisque. In nisl nisi scelerisque eu. Semper risus in hendrerit '
-      'gravida rutrum quisque. Suspendisse in est ante in nibh mauris cursus '
-      'mattis molestie. Adipiscing elit duis tristique sollicitudin nibh sit '
+      'egestas pretium. quis varius quam quisque id. blandit aliquam etiam erat '
+      'gravida rutrum quisque. suspendisse in est ante in nibh mauris cursus '
+      'mattis molestie. adipiscing elit duis tristique sollicitudin nibh sit '
+      'amet commodo nulla. pretium viverra suspendisse potenti nullam ac tortor '
+      'vitae.\n'
       'amet commodo nulla. Pretium viverra suspendisse potenti nullam ac tortor '
+      'vitae.\n'
+      'velit scelerisque. In nisl nisi scelerisque eu. Semper risus in hendrerit '
+      'egestas pretium. quis varius quam quisque id. blandit aliquam etiam erat '
+      'gravida rutrum quisque. suspendisse in est ante in nibh mauris cursus '
+      'mattis molestie. adipiscing elit duis tristique sollicitudin nibh sit '
+      'amet commodo nulla. pretium viverra suspendisse potenti nullam ac tortor '
       'vitae.\n';
+
+  AnimationController _heightController;
+  AnimationController _closeController;
+  double _initPoint;
+  double _pointerDistance;
+  Product _product;
   Animation _closeAnimation;
-  bool _pop;
+  Animation _heightAnimation;
+  Animation _heightBackAnimation;
+  bool _needPop;
+  bool _isTop;
+  bool _opactity;
   @override
   void initState() {
-    _pop = true;
     _heightController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 350));
-    _widthController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     _closeController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+    _needPop = true;
+    _isTop = false;
+    _opactity = false;
     super.initState();
-    Timer(Duration(milliseconds: 50), () {
+    _heightController.forward();
+    Timer(Duration(milliseconds: 250), () {
       setState(() {
-        _heightController.forward();
-        _widthController.forward();
+        _opactity = true;
       });
     });
     _closeAnimation =
         Tween<double>(begin: 1.0, end: 0.75).animate(_closeController);
+    _heightAnimation = Tween<double>(begin: .9, end: 1).animate(
+        CurvedAnimation(curve: Curves.easeIn, parent: _heightController));
+    _heightBackAnimation = Tween<double>(begin: 0.6, end: 1).animate(
+        CurvedAnimation(curve: Curves.easeIn, parent: _heightController));
   }
 
   @override
@@ -72,7 +88,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   void dispose() {
     _closeController.dispose();
     _heightController.dispose();
-    _widthController.dispose();
 
     super.dispose();
   }
@@ -83,92 +98,131 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       backgroundColor: Colors.white.withOpacity(0.85),
       body: AnimatedBuilder(
         animation: _closeAnimation,
-        builder: (context, _child) {
+        builder: (contex, _child) {
           return Transform.scale(
             scale: _closeAnimation.value,
             child: _child,
           );
         },
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (scrollNotification) {
-            if (scrollNotification is ScrollUpdateNotification) {
-              // current scroll position.
-              double top = scrollNotification.metrics.pixels;
-              if (top < 0 && top >= -100) {
-                double _scaleValue =
-                    double.parse((-(top.toInt() / 100)).toStringAsFixed(2));
-                _closeController.animateTo(_scaleValue,
-                    duration: Duration(milliseconds: 0),
-                    curve: Curves.easeOutExpo);
-              } else if (top < 0 && top <= -100) {
-                if (top <= -100 && top >= -110) {
-                  _closeController.animateTo(1,
-                      duration: Duration(milliseconds: 0),
-                      curve: Curves.easeOutExpo);
-                }
-                if (top <= -110) {
-                  if (_pop) {
-                    _pop = false;
-                    _closeController.fling(velocity: 1).then((_) {
-                      setState(() {
-                        _heightController.reverse();
-                      });
-                      Timer(Duration(milliseconds: 100), () {
-                        Navigator.of(context).pop();
-                      });
+        child: AnimatedOpacity(
+          opacity: _opactity ? 1 : 0,
+          duration: Duration(milliseconds: 150),
+          child: SizeTransition(
+            sizeFactor: _needPop ? _heightAnimation : _heightBackAnimation,
+            child: Container(
+              width: double.infinity,
+              constraints: BoxConstraints(
+                minHeight: 300,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 10,
+                    blurRadius: 7,
+                    offset: Offset(0, 3), // changes position of shadow
+                  ),
+                ],
+              ),
+              child: Listener(
+                onPointerDown: (opm) {
+                  _initPoint = opm.position.dy;
+                },
+                onPointerUp: (opm) {
+                  if (_needPop) _closeController.reverse();
+                },
+                onPointerMove: (opm) {
+                  _pointerDistance = -_initPoint + opm.position.dy;
+                  if (_pointerDistance >= 0) {
+                    // scroll up
+                    if (_isTop == true && _pointerDistance < 100) {
+                      double _scaleValue = double.parse(
+                          (_pointerDistance / 100).toStringAsFixed(2));
+                      _closeController.animateTo(_scaleValue,
+                          duration: Duration(milliseconds: 0),
+                          curve: Curves.linear);
+                    } else if (_isTop == true &&
+                        _pointerDistance >= 100 &&
+                        _pointerDistance < 130) {
+                      // stop animation
+                      _closeController.animateTo(1,
+                          duration: Duration(milliseconds: 0),
+                          curve: Curves.linear);
+                    } else if (_isTop == true && _pointerDistance >= 130) {
+                      if (_needPop) {
+                        // pop
+                        _needPop = false;
+                        _closeController.fling(velocity: 1).then((_) {
+                          _heightController.reverse();
+                          Navigator.of(context).pop();
+                          _opactity = false;
+                          Timer(Duration(microseconds: 1000), () {});
+                        });
+                      }
+                    }
+                  } else {
+                    // scroll down
+                    setState(() {
+                      _isTop = false;
                     });
                   }
-                }
-              } else {
-                _closeController.fling(velocity: -1);
-              }
-            }
-            return true;
-          },
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Hero(
-                  tag: _product.id,
-                  child: Image.asset(
-                    _product.image,
-                    fit: BoxFit.cover,
-                    height: 300,
+                },
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (scrollNotification) {
+                    if (scrollNotification is ScrollUpdateNotification) {
+                      double scrollDistance = scrollNotification.metrics.pixels;
+                      if (scrollDistance <= 50) {
+                        setState(() {
+                          _isTop = true;
+                        });
+                      }
+                    }
+                    return true;
+                  },
+                  child: ListView(
+                    physics: _isTop == true
+                        ? ClampingScrollPhysics()
+                        : BouncingScrollPhysics(),
+                    padding: EdgeInsets.all(0),
+                    children: <Widget>[
+                      Hero(
+                        tag: _product.id,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10)),
+                          child: Image.asset(
+                            _product.image,
+                            fit: BoxFit.cover,
+                            height: 300,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(
+                            left: 20, right: 20, top: 50, bottom: 30),
+                        width: double.infinity,
+                        child: Column(
+                          children: <Widget>[
+                            Text('Title', style: TextStyle(fontSize: 18)),
+                            SizedBox(height: 30),
+                            Text(_text,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                )),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizeTransition(
-                  axis: Axis.horizontal,
-                  sizeFactor: Tween<double>(begin: 0.5, end: 1).animate(
-                    CurvedAnimation(
-                        curve: Curves.easeInOut, parent: _widthController),
-                  ),
-                  child: SizeTransition(
-                    sizeFactor: Tween<double>(begin: 0, end: 1).animate(
-                      CurvedAnimation(
-                          curve: Curves.easeInOut, parent: _heightController),
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.only(
-                          left: 20, right: 20, top: 50, bottom: 30),
-                      width: double.infinity,
-                      color: Colors.white,
-                      constraints: BoxConstraints(
-                        minHeight: 650,
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Text('Title', style: TextStyle(fontSize: 18)),
-                          SizedBox(height: 30),
-                          Text(_text,
-                              style: TextStyle(
-                                fontSize: 15,
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

@@ -28,17 +28,19 @@ class _ProductItemState extends State<ProductItem> {
       child: Hero(
         tag: widget.product.id,
         child: Container(
-            decoration: BoxDecoration(boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 5,
-                blurRadius: 7,
-                offset: Offset(0, 10), // changes position of shadow
-              ),
-            ]),
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.asset(widget.product.image, fit: BoxFit.cover))),
+          decoration: BoxDecoration(boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 10,
+              offset: Offset(0, 10), // changes position of shadow
+            ),
+          ]),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(widget.product.image, fit: BoxFit.cover),
+          ),
+        ),
         flightShuttleBuilder:
             (flightContext, animation, direction, fromcontext, toContext) {
           final Hero toHero = toContext.widget;
