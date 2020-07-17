@@ -7,7 +7,7 @@ I customize hero transition to fit App store transition as much as possible.
 
 **Demo**
 
-<img src="https://i.imgur.com/2WYn6TX.gif" alt="" width="300" >
+https://imgur.com/2WYn6TX
 
 
 ## Key point
