@@ -98,22 +98,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   bool _needPop;
   bool _isTop;
   bool _opactity;
-  bool _textBouncing;
-  bool _scrollBouncing;
   @override
   void initState() {
     _needPop = true;
     _isTop = true;
     _opactity = false;
-    _textBouncing = true;
-    _scrollBouncing = false;
 
     _heightController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     _closeController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 400));
-    _textOffsetController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 150));
 
     _closeAnimation =
         Tween<double>(begin: 1.0, end: 0.75).animate(_closeController);
@@ -123,11 +117,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 
     _heightBackAnimation = Tween<double>(begin: 0.6, end: 1).animate(
         CurvedAnimation(curve: Curves.easeIn, parent: _heightController));
-
-    _textOffsetAnimation =
-        Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 0.05)).animate(
-            CurvedAnimation(
-                curve: Curves.linear, parent: _textOffsetController));
 
     super.initState();
 
@@ -154,16 +143,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   void dispose() {
     _closeController.dispose();
     _heightController.dispose();
-    _textOffsetController.dispose();
     super.dispose();
-  }
-
-  // text Bouncing animation.
-  void textBouncing() {
-    _textOffsetController.forward().whenComplete(() {
-      _textOffsetController.animateTo(0,
-          duration: Duration(milliseconds: 1000), curve: Curves.easeOutQuint);
-    });
   }
 
   @override
@@ -213,22 +193,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 onPointerUp: (opm) {
                   if (_needPop) {
                     _closeController.reverse();
-                    Timer(Duration(milliseconds: 500), () {
-                      _textBouncing = true;
-                    });
                   }
                 },
                 onPointerMove: (opm) {
                   _verticalDistance = -_initPoint + opm.position.dy;
                   if (_verticalDistance >= 0) {
-                    setState(() {
-                      _scrollBouncing = false;
-                    });
                     // scroll up
                     if (_isTop == true &&
                         _verticalDistance < SCALE_ANIMATION_STANDARD) {
-                      _textBouncing = false;
-
                       double _scaleValue = double.parse(
                           (_verticalDistance / 100).toStringAsFixed(2));
                       _closeController.animateTo(_scaleValue,
@@ -254,11 +226,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                       }
                     }
                   } else {
-                    // scroll down
-                    setState(() {
-                      _scrollBouncing = true;
-                    });
-                    _textBouncing = false;
                     _isTop = false;
                   }
                 },
@@ -271,51 +238,51 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         _isTop = true;
                       }
                     }
-                    // scroll end function
-                    if (scrollNotification is ScrollEndNotification) {
-                      double scrollDistance = scrollNotification.metrics.pixels;
-                      if (scrollDistance <= 0 && _textBouncing == true) {
-                        textBouncing();
-                      }
-                    }
                     return true;
                   },
-                  child: ListView(
-                    physics: _scrollBouncing == false
-                        ? ClampingScrollPhysics()
-                        : BouncingScrollPhysics(),
-                    padding: EdgeInsets.all(0),
-                    children: <Widget>[
-                      Hero(
-                        tag: _product.id,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
-                          ),
-                          child: Image.asset(
-                            _product.image,
-                            fit: BoxFit.cover,
-                            height: 300,
+                  child: CustomScrollView(
+                    slivers: <Widget>[
+                      SliverAppBar(
+                        expandedHeight: 300,
+                        // hide the back button
+                        leading: Container(),
+                        backgroundColor: Colors.white,
+                        flexibleSpace: FlexibleSpaceBar(
+                          background: Hero(
+                            tag: _product.id,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                topRight: Radius.circular(10),
+                              ),
+                              child: Image.asset(
+                                _product.image,
+                                fit: BoxFit.cover,
+                                height: 300,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                      Container(
-                        padding: EdgeInsets.only(
-                            left: 20, right: 20, top: 50, bottom: 30),
-                        width: double.infinity,
-                        child: SlideTransition(
-                          position: _textOffsetAnimation,
-                          child: Column(
-                            children: <Widget>[
-                              Text('Title', style: TextStyle(fontSize: 18)),
-                              SizedBox(height: 30),
-                              Text(_text,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                  )),
-                            ],
-                          ),
+                      SliverList(
+                        delegate: SliverChildListDelegate(
+                          [
+                            Container(
+                              padding: EdgeInsets.only(
+                                  left: 20, right: 20, top: 50, bottom: 30),
+                              width: double.infinity,
+                              child: Column(
+                                children: <Widget>[
+                                  Text('Title', style: TextStyle(fontSize: 18)),
+                                  SizedBox(height: 30),
+                                  Text(_text,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                      )),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
