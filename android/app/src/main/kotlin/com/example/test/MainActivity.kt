@@ -1,4 +1,4 @@
-package com.example.app_store_transition
+package com.example.test
 
 import io.flutter.embedding.android.FlutterActivity
 
