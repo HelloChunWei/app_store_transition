@@ -1,6 +1,8 @@
 import 'package:app_store_transition/models/product.dart';
 import 'package:flutter/material.dart';
+import 'package:animations/animations.dart';
 import '../screen/product_detail_screen.dart';
+import '../screen//product_detail_2023.dart';
 
 class ProductItem extends StatefulWidget {
   final Product product;
@@ -11,6 +13,24 @@ class ProductItem extends StatefulWidget {
 
 class _ProductItemState extends State<ProductItem> {
   @override
+  // we can use [OpenContainer] to replace [Hero] widget at 2023.
+  Widget build(BuildContext context) {
+    return OpenContainer<bool>(
+      transitionType: ContainerTransitionType.fade,
+      openBuilder: (BuildContext context, VoidCallback _) {
+        return ProductDetailScreen2023();
+      },
+      // tappable: false,
+      closedBuilder: (BuildContext _, VoidCallback openContainer) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Image.asset(widget.product.image, fit: BoxFit.cover),
+        );
+      },
+    );
+  }
+
+  /*
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -66,4 +86,5 @@ class _ProductItemState extends State<ProductItem> {
       ),
     );
   }
+  */
 }
