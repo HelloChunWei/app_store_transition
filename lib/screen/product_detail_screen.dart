@@ -72,32 +72,32 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       'amet commodo nulla. pretium viverra suspendisse potenti nullam ac tortor '
       'vitae.\n';
 
-  Product _product;
+  Product? _product;
 
   /// [_heightController] controls transition when router pushs
-  AnimationController _heightController;
-  Animation _heightAnimation;
+  AnimationController? _heightController;
+  Animation<double>? _heightAnimation;
 
   /// NOTE: pop transition is differnt to push transition.
-  Animation _heightBackAnimation;
+  Animation<double>? _heightBackAnimation;
 
   /// [_closeController] controls transition when router pops.
-  AnimationController _closeController;
-  Animation _closeAnimation;
+  AnimationController? _closeController;
+  Animation? _closeAnimation;
 
   /// When user scrolls to the top but not triggers pop's transition.
   /// Then Text Section has bouncing animation.
-  AnimationController _textOffsetController;
-  Animation _textOffsetAnimation;
+  AnimationController? _textOffsetController;
+  Animation? _textOffsetAnimation;
 
   /// When user point down.
-  double _initPoint;
+  double? _initPoint;
   // Calculate vertical distance.
-  double _verticalDistance;
+  double? _verticalDistance;
 
-  bool _needPop;
-  bool _isTop;
-  bool _opactity;
+  bool? _needPop;
+  bool? _isTop;
+  bool? _opactity;
   @override
   void initState() {
     _needPop = true;
@@ -110,18 +110,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         AnimationController(vsync: this, duration: Duration(milliseconds: 400));
 
     _closeAnimation =
-        Tween<double>(begin: 1.0, end: 0.75).animate(_closeController);
+        Tween<double>(begin: 1.0, end: 0.75).animate(_closeController!);
 
     _heightAnimation = Tween<double>(begin: .9, end: 1).animate(
-        CurvedAnimation(curve: Curves.easeIn, parent: _heightController));
+        CurvedAnimation(curve: Curves.easeIn, parent: _heightController!));
 
     _heightBackAnimation = Tween<double>(begin: 0.6, end: 1).animate(
-        CurvedAnimation(curve: Curves.easeIn, parent: _heightController));
+        CurvedAnimation(curve: Curves.easeIn, parent: _heightController!));
 
     super.initState();
 
     // Trigger push animation.
-    _heightController.forward();
+    _heightController!.forward();
 
     Timer(Duration(milliseconds: 250), () {
       setState(() {
@@ -133,7 +133,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final id = ModalRoute.of(context).settings.arguments as String;
+    final id = ModalRoute.of(context)!.settings.arguments as String;
 
     /// get Proudct.
     _product = Provider.of<Products>(context, listen: false).findById(id);
@@ -141,8 +141,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 
   @override
   void dispose() {
-    _closeController.dispose();
-    _heightController.dispose();
+    _closeController!.dispose();
+    _heightController!.dispose();
     super.dispose();
   }
 
@@ -151,20 +151,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     return Scaffold(
       backgroundColor: Colors.white.withOpacity(0.85),
       body: AnimatedBuilder(
-        animation: _closeAnimation,
+        animation: _closeAnimation!,
         builder: (contex, _child) {
           // only trigger at router pop.
           return Transform.scale(
-            scale: _closeAnimation.value,
+            scale: _closeAnimation!.value,
             child: _child,
           );
         },
         child: AnimatedOpacity(
-          opacity: _opactity ? 1 : 0,
+          opacity: _opactity! ? 1 : 0,
           duration: Duration(milliseconds: 150),
           // Controls Container height.
           child: SizeTransition(
-            sizeFactor: _needPop ? _heightAnimation : _heightBackAnimation,
+            sizeFactor: _needPop! ? _heightAnimation! : _heightBackAnimation!,
             child: Container(
               width: double.infinity,
               constraints: BoxConstraints(
@@ -191,35 +191,35 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   _initPoint = opm.position.dy;
                 },
                 onPointerUp: (opm) {
-                  if (_needPop) {
-                    _closeController.reverse();
+                  if (_needPop!) {
+                    _closeController!.reverse();
                   }
                 },
                 onPointerMove: (opm) {
-                  _verticalDistance = -_initPoint + opm.position.dy;
-                  if (_verticalDistance >= 0) {
+                  _verticalDistance = -_initPoint! + opm.position.dy;
+                  if (_verticalDistance! >= 0) {
                     // scroll up
                     if (_isTop == true &&
-                        _verticalDistance < SCALE_ANIMATION_STANDARD) {
+                        _verticalDistance! < SCALE_ANIMATION_STANDARD) {
                       double _scaleValue = double.parse(
-                          (_verticalDistance / 100).toStringAsFixed(2));
-                      _closeController.animateTo(_scaleValue,
+                          (_verticalDistance! / 100).toStringAsFixed(2));
+                      _closeController!.animateTo(_scaleValue,
                           duration: Duration(milliseconds: 0),
                           curve: Curves.linear);
                     } else if (_isTop == true &&
-                        _verticalDistance >= SCALE_ANIMATION_STANDARD &&
-                        _verticalDistance < POP_STANDARD) {
+                        _verticalDistance! >= SCALE_ANIMATION_STANDARD &&
+                        _verticalDistance! < POP_STANDARD) {
                       // stop animation
-                      _closeController.animateTo(1,
+                      _closeController!.animateTo(1,
                           duration: Duration(milliseconds: 0),
                           curve: Curves.linear);
                     } else if (_isTop == true &&
-                        _verticalDistance >= POP_STANDARD) {
-                      if (_needPop) {
+                        _verticalDistance! >= POP_STANDARD) {
+                      if (_needPop!) {
                         // pop
                         _needPop = false;
-                        _closeController.fling(velocity: 1).then((_) {
-                          _heightController.reverse();
+                        _closeController!.fling(velocity: 1).then((_) {
+                          _heightController!.reverse();
                           Navigator.of(context).pop();
                           _opactity = false;
                         });
@@ -249,14 +249,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         backgroundColor: Colors.white,
                         flexibleSpace: FlexibleSpaceBar(
                           background: Hero(
-                            tag: _product.id,
+                            tag: _product!.id,
                             child: ClipRRect(
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 topRight: Radius.circular(10),
                               ),
                               child: Image.asset(
-                                _product.image,
+                                _product!.image,
                                 fit: BoxFit.cover,
                                 height: 300,
                               ),

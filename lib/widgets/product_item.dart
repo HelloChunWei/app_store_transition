@@ -43,7 +43,7 @@ class _ProductItemState extends State<ProductItem> {
         ),
         flightShuttleBuilder:
             (flightContext, animation, direction, fromcontext, toContext) {
-          final Hero toHero = toContext.widget;
+          final Widget toHero = toContext.widget;
           // Change push and pop animation.
           return direction == HeroFlightDirection.push
               ? ScaleTransition(
@@ -56,11 +56,11 @@ class _ProductItemState extends State<ProductItem> {
                           curve: Interval(0.4, 1.0, curve: Curves.easeInOut)),
                     ),
                   ),
-                  child: toHero.child,
+                  child: toHero,
                 )
               : SizeTransition(
                   sizeFactor: animation,
-                  child: toHero.child,
+                  child: toHero,
                 );
         },
       ),
