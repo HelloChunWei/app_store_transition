@@ -1,5 +1,11 @@
 # app store transition by flutter
 
+## 2023
+
+We can use OpenContainer to remake animation.
+It is more smooth then Hero
+https://pub.dev/packages/animations
+
 
 ### Use ``Hero`` and ``AnimatedBuilder`` 
 
