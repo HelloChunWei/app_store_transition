@@ -78,17 +78,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   AnimationController? _heightController;
   Animation<double>? _heightAnimation;
 
-  /// NOTE: pop transition is differnt to push transition.
-  Animation<double>? _heightBackAnimation;
-
   /// [_closeController] controls transition when router pops.
   AnimationController? _closeController;
   Animation? _closeAnimation;
-
-  /// When user scrolls to the top but not triggers pop's transition.
-  /// Then Text Section has bouncing animation.
-  AnimationController? _textOffsetController;
-  Animation? _textOffsetAnimation;
 
   /// When user point down.
   double? _initPoint;
@@ -105,18 +97,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     _opactity = false;
 
     _heightController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
     _closeController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 400));
 
     _closeAnimation =
         Tween<double>(begin: 1.0, end: 0.75).animate(_closeController!);
 
-    _heightAnimation = Tween<double>(begin: .9, end: 1).animate(
-        CurvedAnimation(curve: Curves.easeIn, parent: _heightController!));
-
-    _heightBackAnimation = Tween<double>(begin: 0.6, end: 1).animate(
-        CurvedAnimation(curve: Curves.easeIn, parent: _heightController!));
+    _heightAnimation = CurvedAnimation(curve: Curves.easeIn, parent: _heightController!);
 
     super.initState();
 
@@ -161,85 +149,90 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         },
         child: AnimatedOpacity(
           opacity: _opactity! ? 1 : 0,
-          duration: Duration(milliseconds: 150),
+          duration: Duration(milliseconds: 250),
           // Controls Container height.
-          child: SizeTransition(
-            sizeFactor: _needPop! ? _heightAnimation! : _heightBackAnimation!,
-            child: Container(
-              width: double.infinity,
-              constraints: BoxConstraints(
-                minHeight: 300,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 10,
-                    blurRadius: 7,
-                    offset: Offset(0, 3), // changes position of shadow
-                  ),
-                ],
-              ),
-              child: Listener(
-                onPointerDown: (opm) {
-                  _initPoint = opm.position.dy;
-                },
-                onPointerUp: (opm) {
-                  if (_needPop!) {
-                    _closeController!.reverse();
-                  }
-                },
-                onPointerMove: (opm) {
-                  _verticalDistance = -_initPoint! + opm.position.dy;
-                  if (_verticalDistance! >= 0) {
-                    // scroll up
-                    if (_isTop == true &&
-                        _verticalDistance! < SCALE_ANIMATION_STANDARD) {
-                      double _scaleValue = double.parse(
-                          (_verticalDistance! / 100).toStringAsFixed(2));
-                      _closeController!.animateTo(_scaleValue,
-                          duration: Duration(milliseconds: 0),
-                          curve: Curves.linear);
-                    } else if (_isTop == true &&
-                        _verticalDistance! >= SCALE_ANIMATION_STANDARD &&
-                        _verticalDistance! < POP_STANDARD) {
-                      // stop animation
-                      _closeController!.animateTo(1,
-                          duration: Duration(milliseconds: 0),
-                          curve: Curves.linear);
-                    } else if (_isTop == true &&
-                        _verticalDistance! >= POP_STANDARD) {
-                      if (_needPop!) {
-                        // pop
-                        _needPop = false;
-                        _closeController!.fling(velocity: 1).then((_) {
-                          _heightController!.reverse();
+          child: Container(
+            width: double.infinity,
+            constraints: BoxConstraints(
+              minHeight: 300,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 10,
+                  blurRadius: 7,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            child: Listener(
+              onPointerDown: (opm) {
+                _initPoint = opm.position.dy;
+              },
+              onPointerUp: (opm) {
+                if (_needPop!) {
+                  _closeController!.reverse();
+                }
+              },
+              onPointerMove: (opm) {
+                _verticalDistance = -_initPoint! + opm.position.dy;
+                if (_verticalDistance! >= 0) {
+                  // scroll up
+                  if (_isTop == true &&
+                      _verticalDistance! < SCALE_ANIMATION_STANDARD) {
+                    double _scaleValue = double.parse(
+                        (_verticalDistance! / 100).toStringAsFixed(2));
+                    _closeController!.animateTo(_scaleValue,
+                        duration: Duration(milliseconds: 0),
+                        curve: Curves.linear);
+                  } else if (_isTop == true &&
+                      _verticalDistance! >= SCALE_ANIMATION_STANDARD &&
+                      _verticalDistance! < POP_STANDARD) {
+                    // stop animation
+                    _closeController!.animateTo(1,
+                        duration: Duration(milliseconds: 0),
+                        curve: Curves.linear);
+                  } else if (_isTop == true &&
+                      _verticalDistance! >= POP_STANDARD) {
+                    if (_needPop!) {
+                      // pop
+                      _needPop = false;
+                      _closeController!.fling(velocity: 1).then((_) {
+                        _heightController!.reverse();
+                        Timer(Duration(milliseconds: 20), () {
                           Navigator.of(context).pop();
+                        });
+                        setState(() {
                           _opactity = false;
                         });
-                      }
+                      });
                     }
-                  } else {
-                    _isTop = false;
                   }
-                },
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (scrollNotification) {
-                    // scroll update function
-                    if (scrollNotification is ScrollUpdateNotification) {
-                      double scrollDistance = scrollNotification.metrics.pixels;
-                      if (scrollDistance <= 3) {
-                        _isTop = true;
-                      }
+                } else {
+                  _isTop = false;
+                }
+              },
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                  // scroll update function
+                  if (scrollNotification is ScrollUpdateNotification) {
+                    double scrollDistance = scrollNotification.metrics.pixels;
+                    if (scrollDistance <= 3) {
+                      _isTop = true;
                     }
-                    return true;
-                  },
+                  }
+                  return true;
+                },
+                child: SizeTransition(
+                   sizeFactor: _needPop! ? _heightAnimation! : _heightAnimation!,
+                  axisAlignment: -1,
                   child: CustomScrollView(
                     slivers: <Widget>[
                       SliverAppBar(

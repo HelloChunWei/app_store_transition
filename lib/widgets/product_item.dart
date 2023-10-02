@@ -12,25 +12,45 @@ class ProductItem extends StatefulWidget {
 }
 
 class _ProductItemState extends State<ProductItem> {
+  BorderSide side = BorderSide(color: Colors.white);
   @override
   // we can use [OpenContainer] to replace [Hero] widget at 2023.
+  /*
   Widget build(BuildContext context) {
     return OpenContainer<bool>(
       transitionType: ContainerTransitionType.fade,
-      openBuilder: (BuildContext context, VoidCallback _) {
-        return ProductDetailScreen2023();
+      openBuilder: (BuildContext context, VoidCallback closeContainer) {
+        return ProductDetailScreen2023(widget.product, closeContainer);
       },
-      // tappable: false,
+      tappable: false,
+      transitionDuration: Duration(milliseconds: 2000),
+      openShape: RoundedRectangleBorder(
+      ),
+      openColor: Colors.white.withOpacity(0.6),
       closedBuilder: (BuildContext _, VoidCallback openContainer) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.asset(widget.product.image, fit: BoxFit.cover),
+        return GestureDetector(
+          onTap: () => {
+            openContainer()
+            //  Navigator.of(_).push(
+            //   PageRouteBuilder(
+            //     /// [opaque] set fasle, then the detail page can see the home page screen.
+            //     opaque: false,
+            //     transitionDuration: Duration(milliseconds: 700),
+            //     fullscreenDialog: true,
+            //     pageBuilder: (context, _, __) => ProductDetailScreen2023(widget.product, openContainer),
+            //     settings: RouteSettings(arguments: widget.product.id),
+            //   ),
+            // )
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(widget.product.image, fit: BoxFit.cover),
+          ),
         );
       },
     );
   }
-
-  /*
+  */
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -86,5 +106,4 @@ class _ProductItemState extends State<ProductItem> {
       ),
     );
   }
-  */
 }
