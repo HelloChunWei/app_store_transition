@@ -9,6 +9,8 @@ https://pub.dev/packages/animations
 
 ### Use ``Hero`` and ``AnimatedBuilder`` 
 
+stackoverflow: https://stackoverflow.com/questions/62575091/possible-to-copy-ios-app-store-transition-using-flutter/62926971#62926971
+
 I customize hero transition to fit App store transition as much as possible. 
 
 **Demo**
